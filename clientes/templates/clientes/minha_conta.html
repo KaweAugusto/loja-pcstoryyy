@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Minha Conta - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h2 class="mb-0">Minha Conta</h2>
+        </div>
+        <div class="card-body">
+            <h4 class="card-title mb-4">
+                Bem-vindo(a), {{ user.first_name|default:user.username }}!
+            </h4>
+
+            <p class="text-muted">
+                Aqui estão suas informações de cadastro. Mantenha-as sempre atualizadas.
+            </p>
+            <hr>
+
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Nome Completo:</strong>
+                    <span>{{ user.first_name|default:"Não informado" }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Email de Cadastro:</strong>
+                    <span>{{ user.email }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Endereço Principal:</strong>
+                    <span>{{ user.cliente.endereco|default:"Não informado" }}</span>
+                </li>
+            </ul>
+
+            <div class="mt-4">
+                <a href="#" class="btn btn-primary">Editar Informações</a>
+                <a href="#" class="btn btn-secondary">Alterar Senha</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

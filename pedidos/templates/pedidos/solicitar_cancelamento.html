@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Solicitar Cancelamento</h2>
+<p>Pedido #{{ pedido.id }} - {{ pedido.cliente }}</p>
+
+<form method="post">
+    {% csrf_token %}
+    <label>Motivo:</label>
+    <textarea name="motivo" required></textarea>
+    <br>
+    <button type="submit" class="btn btn-warning">Enviar solicitação</button>
+</form>
+{% endblock %}

@@ -1,0 +1,30 @@
+/* Estilos para o fundo e cores de texto */
+body {
+    background-color: #111; /* Fundo preto do list.html */
+    color: white;
+}
+
+/* Estilos para textos e botões primários */
+.text-primary {
+    color: #00aaff !important; /* Azul primário */
+}
+
+.btn-outline-primary {
+    border-color: #00aaff;
+    color: #00aaff;
+}
+
+.btn-outline-primary:hover {
+    background-color: #00aaff;
+    color: white;
+}
+
+/* Estilos para o botão de sucesso (comprar) */
+.btn-success {
+    background-color: #008000;
+    border: none;
+}
+
+.btn-success:hover {
+    background-color: #00b300;
+}

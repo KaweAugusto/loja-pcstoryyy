@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: sistema-ecommerce
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn sistema_ecommerce.wsgi"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: sistema_ecommerce.settings

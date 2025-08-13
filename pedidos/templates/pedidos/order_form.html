@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Editar{% else %}Novo{% endif %} Pedido{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{% if object %}Editar{% else %}Criar Novo{% endif %} Pedido</h2>
+    <hr>
+    <form method="post">
+        {% csrf_token %}
+
+        <h4>Detalhes do Pedido</h4>
+        {{ form.as_p }}
+
+        <h4 class="mt-4">Itens</h4>
+        {{ formset.management_form }}
+        <div id="item-formset">
+            {% for form in formset %}
+                <div class="row item-form mb-2 align-items-center">
+                    <div class="col-md-5">{{ form.produto }}</div>
+                    <div class="col-md-2">{{ form.quantidade }}</div>
+                    <div class="col-md-3">{{ form.preco }}</div>
+                    <div class="col-md-2">{{ form.DELETE }}</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Salvar Pedido</button>
+        <a href="{% url 'pedidos:lista' %}" class="btn btn-secondary mt-3">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="bg-dark text-white p-3 rounded shadow">
+                <h5 class="mb-3 text-primary">Categorias Relacionadas</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-white text-decoration-none">Hardware</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Periféricos</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Computadores</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Games</a></li>
+                    <li><a href="#" class="text-white text-decoration-none">Celulares & Tablets</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <h3 class="text-primary mb-4">Produtos</h3>
+            <div class="row g-4">
+                {% for produto in produtos %}
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        {% if produto.imagem %}
+                            <img src="{{ produto.imagem.url }}" class="card-img-top p-3" alt="{{ produto.nome }}">
+                        {% else %}
+                            <div class="bg-light p-5 text-center">Sem imagem</div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">{{ produto.nome }}</h5>
+                            <p class="card-text text-muted" style="font-size: 0.9rem;">{{ produto.descricao|truncatewords:10 }}</p>
+                            <h6 class="text-primary"><strong>R$ {{ produto.preco }}</strong></h6>
+                        </div>
+                        <div class="card-footer bg-white border-0 d-flex justify-content-between">
+                            <a href="{% url 'produtos:detalhe' produto.id %}" class="btn btn-outline-primary btn-sm">Ver Detalhes</a>
+                            <a href="#" class="btn btn-success btn-sm">Comprar</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted">Nenhum produto encontrado.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

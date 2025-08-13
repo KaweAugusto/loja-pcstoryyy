@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes de {{ cliente.nome }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h2 class="mb-0">Detalhes do Cliente</h2>
+        </div>
+        <div class="card-body">
+            <h3 class="card-title">{{ cliente.nome }}</h3>
+            <hr>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <strong>E-mail:</strong> {{ cliente.email }}
+                </li>
+                <li class="list-group-item">
+                    <strong>Telefone:</strong> {{ cliente.telefone|default:"Não informado" }}
+                </li>
+                <li class="list-group-item">
+                    <strong>Endereço:</strong> {{ cliente.endereco|default:"Não informado" }}
+                </li>
+                 <li class="list-group-item">
+                    <strong>Usuário Vinculado:</strong> {{ cliente.user.username }}
+                </li>
+            </ul>
+        </div>
+        <div class="card-footer bg-light">
+            <a class="btn btn-primary" href="{% url 'clientes:editar' cliente.pk %}">Editar</a>
+            <a class="btn btn-secondary" href="{% url 'clientes:lista' %}">Voltar para a Lista</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Clientes</h2>
+  <a class="btn btn-success mb-2" href="{% url 'clientes:criar' %}">Novo Cliente</a>
+  <table class="table table-striped">
+    <thead><tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Ações</th></tr></thead>
+    <tbody>
+      {% for c in clientes %}
+        <tr>
+          <td>{{ c.nome }}</td><td>{{ c.email }}</td><td>{{ c.telefone }}</td>
+          <td>
+            <a class="btn btn-sm btn-primary" href="{% url 'clientes:detalhar' c.pk %}">Detalhes</a>
+            <a class="btn btn-sm btn-secondary" href="{% url 'clientes:editar' c.pk %}">Editar</a>
+            <a class="btn btn-sm btn-danger" href="{% url 'clientes:apagar' c.pk %}">Apagar</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4">Nenhum cliente cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

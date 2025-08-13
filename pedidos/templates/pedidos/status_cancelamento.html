@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Status do Cancelamento</h2>
+
+<div>
+    <p><b>Cliente:</b> {{ pedido.cliente }}</p>
+    <p><b>Data da compra:</b> {{ pedido.criado_em }}</p>
+    <p><b>Número do pedido:</b> {{ pedido.id }}</p>
+    <p><b>Total do pedido:</b> R$ {{ pedido.total }}</p>
+    <p><b>Motivo do cancelamento:</b> {{ pedido.motivo_cancelamento }}</p>
+    <p><b>Status:</b> {{ pedido.get_status_cancelamento_display }}</p>
+</div>
+
+{% if user.is_superuser and pedido.status_cancelamento == "solicitado" %}
+    <div class="mt-3">
+        <!-- Botão para Aprovar -->
+        <a href="{% url 'pedidos:avaliar_cancelamento' pedido.id 'aprovar' %}"
+           class="btn btn-success">Aprovar Cancelamento</a>
+
+        <!-- Botão para Negar -->
+        <a href="{% url 'pedidos:avaliar_cancelamento' pedido.id 'negar' %}"
+           class="btn btn-warning">Negar Cancelamento</a>
+    </div>
+{% endif %}
+
+{% endblock %}

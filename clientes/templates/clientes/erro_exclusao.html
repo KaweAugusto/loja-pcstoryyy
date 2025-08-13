@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card border-danger shadow">
+        <!-- Cabeçalho -->
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">Não foi possível excluir o cliente</h4>
+        </div>
+
+        <!-- Corpo -->
+        <div class="card-body">
+            <p class="fs-5">
+                O cliente <strong>{{ cliente.nome }}</strong> possui
+                <span class="text-danger">pedido(s) em aberto</span>.
+            </p>
+            <p class="text-muted">
+                Para excluir este cliente, é necessário cancelar todos os pedidos vinculados a ele.
+            </p>
+            <hr>
+
+            <!-- Botões -->
+            <div class="d-flex gap-2">
+                <a href="{% url 'clientes:lista' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Voltar para a lista de clientes
+                </a>
+                <a href="{% url 'pedidos:lista' %}" class="btn btn-warning text-dark">
+                    <i class="bi bi-receipt"></i> Ir para pedidos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
