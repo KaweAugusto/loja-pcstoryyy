@@ -1,5 +1,3 @@
-# pedidos/forms.py
-
 from django import forms
 from django.forms import inlineformset_factory
 from .models import Pedido, ItemPedido

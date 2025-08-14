@@ -1,61 +1,76 @@
-# clientes/views.py
-
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
-from django.conf import settings
+from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.decorators import login_required
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.db.models import ProtectedError
-
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Cliente
-from .forms import ClienteCreationForm, LoginForm, ClienteForm
+from .forms import UserEditForm, ClienteForm
 
 
-def login_registro_view(request):
-    if request.user.is_authenticated:
-        return redirect(settings.LOGIN_REDIRECT_URL)
+class LoginRegistroView(View):
+    template_name = 'clientes/login_registro.html'
 
-    login_form = LoginForm(request.POST or None)
-    register_form = ClienteCreationForm(request.POST or None)
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('home')
+        return render(request, self.template_name)
 
-    if request.method == 'POST':
+    def post(self, request, *args, **kwargs):
         action = request.POST.get('action')
 
         if action == 'register':
-            if register_form.is_valid():
-                user = register_form.save()
-                login(request, user)
-                messages.success(request, 'Cadastro realizado com sucesso!')
-                return redirect(settings.LOGIN_REDIRECT_URL)
+            # --- Lógica de Registro ---
+            nome_completo = request.POST.get('nome_completo')
+            email = request.POST.get('email')
+            senha = request.POST.get('senha')
+            confirmar_senha = request.POST.get('confirmar_senha')
+            endereco = request.POST.get('endereco')
+
+            if not all([nome_completo, email, senha, confirmar_senha, endereco]):
+                messages.error(request, 'Todos os campos são obrigatórios para o registro.')
+                return render(request, self.template_name)
+
+            if senha != confirmar_senha:
+                messages.error(request, 'As senhas não coincidem.')
+                return render(request, self.template_name)
+
+            if User.objects.filter(email=email).exists():
+                messages.error(request, 'Este e-mail já está cadastrado.')
+                return render(request, self.template_name)
+
+            try:
+                user = User.objects.create_user(username=email, email=email, password=senha)
+                user.first_name = nome_completo.split(' ')[0]
+                user.last_name = ' '.join(nome_completo.split(' ')[1:])
+                user.save()
+
+                Cliente.objects.create(user=user, nome=nome_completo, endereco=endereco)
+
+                messages.success(request, 'Conta criada com sucesso! Faça o login para continuar.')
+                return redirect('clientes:login_registro')
+
+            except Exception as e:
+                messages.error(request, f'Ocorreu um erro ao criar a conta: {e}')
 
         elif action == 'login':
-            if login_form.is_valid():
-                username_or_email = login_form.cleaned_data.get('username')
-                password = login_form.cleaned_data.get('password')
-                user = authenticate(request, username=username_or_email, password=password)
+            # --- Lógica de Login ---
+            email = request.POST.get('email')
+            password = request.POST.get('password')
 
-                if user is None and '@' in username_or_email:
-                    try:
-                        user_obj = User.objects.get(email=username_or_email)
-                        user = authenticate(request, username=user_obj.username, password=password)
-                    except User.DoesNotExist:
-                        user = None
+            if not email or not password:
+                messages.error(request, 'E-mail e senha são obrigatórios.')
+                return render(request, self.template_name)
 
-                if user is not None:
-                    login(request, user)
-                    return redirect(settings.LOGIN_REDIRECT_URL)
-                else:
-                    messages.error(request, 'Usuário ou senha inválidos.')
+            user = authenticate(request, username=email, password=password)
 
-    context = {
-        'login_form': login_form,
-        'register_form': register_form
-    }
-    return render(request, 'login_registro.html', context)
+            if user is not None:
+                login(request, user)
+                return redirect('home')
+            else:
+                messages.error(request, 'E-mail ou senha inválidos.')
+
+        return render(request, self.template_name)
 
 
 def logout_view(request):
@@ -64,59 +79,41 @@ def logout_view(request):
     return redirect('home')
 
 
-@login_required
-def minha_conta_view(request):
-    return render(request, 'clientes/minha_conta.html')
+class MinhaContaView(LoginRequiredMixin, View):
+    template_name = 'clientes/minha_conta.html'
 
+    def get(self, request, *args, **kwargs):
+        try:
+            cliente = request.user.cliente
+        except Cliente.DoesNotExist:
+            cliente = Cliente.objects.create(user=request.user,
+                                             nome=request.user.get_full_name() or request.user.username)
 
-class ClienteListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
-    model = Cliente
-    template_name = 'clientes/client_list.html'
-    context_object_name = 'clientes'
+        user_form = UserEditForm(instance=request.user)
+        cliente_form = ClienteForm(instance=cliente)
 
-    def test_func(self):
-        return self.request.user.is_superuser
-
-
-class ClienteDetailView(LoginRequiredMixin, DetailView):
-    model = Cliente
-    template_name = 'clientes/client_detail.html'
-    context_object_name = 'cliente'
-
-
-class ClienteCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
-    model = Cliente
-    form_class = ClienteForm
-    template_name = 'clientes/client_form.html'
-    success_url = reverse_lazy('clientes:lista')
-
-    def test_func(self):
-        return self.request.user.is_superuser
-
-
-class ClienteUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    model = Cliente
-    form_class = ClienteForm
-    template_name = 'clientes/client_form.html'
-    success_url = reverse_lazy('clientes:lista')
-
-    def test_func(self):
-        return self.request.user.is_superuser
-
-
-class ClienteDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Cliente
-    template_name = 'clientes/client_confirm_delete.html'
-    success_url = reverse_lazy('clientes:lista')
+        context = {
+            'user_form': user_form,
+            'cliente_form': cliente_form
+        }
+        return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        try:
-            return super().post(request, *args, **kwargs)
-        except ProtectedError:
-            cliente = self.get_object()
-            messages.error(request,
-                           f'Não é possível excluir o cliente {cliente.nome}, pois ele possui pedidos vinculados.')
-            return redirect('clientes:lista')
+        # Garante que o cliente existe antes de tentar editar
+        cliente, created = Cliente.objects.get_or_create(user=request.user, defaults={
+            'nome': request.user.get_full_name() or request.user.username})
 
-    def test_func(self):
-        return self.request.user.is_superuser
+        user_form = UserEditForm(request.POST, instance=request.user)
+        cliente_form = ClienteForm(request.POST, instance=cliente)
+
+        if user_form.is_valid() and cliente_form.is_valid():
+            user_form.save()
+            cliente_form.save()
+            messages.success(request, 'Sua conta foi atualizada com sucesso!')
+            return redirect('clientes:minha_conta')
+
+        context = {
+            'user_form': user_form,
+            'cliente_form': cliente_form
+        }
+        return render(request, self.template_name, context)

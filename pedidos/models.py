@@ -1,22 +1,17 @@
-# pedidos/models.py
 from django.db import models
 from clientes.models import Cliente
-from produto.models import Produto # <--- ESTA LINHA FOI CORRIGIDA
+from produto.models import Produto
 from decimal import Decimal
 
-
 class Pedido(models.Model):
+    # Status mais completos para um fluxo de e-commerce
     STATUS_CHOICES = [
-        ('ABERTO', 'Aberto'),
+        ('AGUARDANDO_PAGAMENTO', 'Aguardando Pagamento'),
+        ('CANCELAMENTO_SOLICITADO', 'Cancelamento Solicitado'),
+        ('PROCESSANDO', 'Processando'),
         ('ENVIADO', 'Enviado'),
+        ('ENTREGUE', 'Entregue'),
         ('CANCELADO', 'Cancelado'),
-    ]
-
-    STATUS_CANCELAMENTO_CHOICES = [
-        ('nenhum', 'Nenhum'),
-        ('solicitado', 'Aguardando confirmação'),
-        ('cancelado', 'Cancelado'),
-        ('recusado', 'Recusado'),
     ]
 
     cliente = models.ForeignKey(
@@ -25,23 +20,15 @@ class Pedido(models.Model):
         related_name='pedidos'
     )
     criado_em = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ABERTO')
-
-    # Controle de cancelamento
-    status_cancelamento = models.CharField(
-        max_length=20,
-        choices=STATUS_CANCELAMENTO_CHOICES,
-        default='nenhum'
-    )
-    motivo_cancelamento = models.TextField(blank=True, null=True)
-
-    # Total salvo no banco
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    status = models.CharField(
+        max_length=25,
+        choices=STATUS_CHOICES,
+        default='AGUARDANDO_PAGAMENTO'
+    )
 
-    def calcular_total(self):
-        """Recalcula o valor total e salva no banco."""
-        self.total = sum(item.subtotal() for item in self.itens.all())
-        self.save(update_fields=['total'])
+    class Meta:
+        ordering = ['-criado_em'] # Mostra os pedidos mais recentes primeiro
 
     def __str__(self):
         return f'Pedido #{self.id} - {self.cliente.nome}'
@@ -51,28 +38,19 @@ class ItemPedido(models.Model):
     pedido = models.ForeignKey(
         Pedido,
         related_name='itens',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE # Se o pedido for deletado, os itens também são
     )
     produto = models.ForeignKey(
         Produto,
-        on_delete=models.PROTECT
+        on_delete=models.PROTECT # Impede que um produto em um pedido seja deletado
     )
     quantidade = models.PositiveIntegerField(default=1)
-    preco = models.DecimalField(max_digits=10, decimal_places=2)
+    preco = models.DecimalField(max_digits=10, decimal_places=2) # Preço no momento da compra
 
+    @property
     def subtotal(self):
         """Calcula o subtotal do item."""
-        return Decimal(self.preco) * self.quantidade
-
-    def save(self, *args, **kwargs):
-        """Atualiza o total do pedido ao salvar item."""
-        super().save(*args, **kwargs)
-        self.pedido.calcular_total()
-
-    def delete(self, *args, **kwargs):
-        """Atualiza o total do pedido ao deletar item."""
-        super().delete(*args, **kwargs)
-        self.pedido.calcular_total()
+        return self.preco * self.quantidade
 
     def __str__(self):
-        return f'{self.quantidade}x {self.produto.nome} (Pedido #{self.pedido.id})'
+        return f'{self.quantidade}x {self.produto.nome}'

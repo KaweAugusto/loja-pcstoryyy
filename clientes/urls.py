@@ -1,32 +1,15 @@
-# clientes/urls.py
-
 from django.urls import path
-from .views import (
-    # Views de Autenticação
-    login_registro_view,
-    logout_view,
-    minha_conta_view,
-
-    # Views de Gerenciamento de Clientes (CRUD)
-    ClienteListView,
-    ClienteDetailView,
-    ClienteCreateView,
-    ClienteUpdateView,
-    ClienteDeleteView,
-)
+from .views import LoginRegistroView, logout_view, MinhaContaView
 
 app_name = 'clientes'
 
 urlpatterns = [
-    # URLs de Autenticação
-    path('login-registro/', login_registro_view, name='login_registro'),
-    path('sair/', logout_view, name='logout'),
-    path('minha-conta/', minha_conta_view, name='minha_conta'),
+    # URL para a página que combina login e registro
+    path('login-registro/', LoginRegistroView.as_view(), name='login_registro'),
 
-    # URLs de Gerenciamento de Clientes (CRUD)
-    path('', ClienteListView.as_view(), name='lista'),
-    path('novo/', ClienteCreateView.as_view(), name='criar'),
-    path('<int:pk>/', ClienteDetailView.as_view(), name='detalhar'),
-    path('<int:pk>/editar/', ClienteUpdateView.as_view(), name='editar'),
-    path('<int:pk>/apagar/', ClienteDeleteView.as_view(), name='apagar'),
+    # URL para fazer o logout do usuário
+    path('logout/', logout_view, name='logout'),
+
+    # URL para a página de "Minha Conta", onde o usuário logado pode editar seus dados
+    path('minha-conta/', MinhaContaView.as_view(), name='minha_conta'),
 ]

@@ -9,25 +9,58 @@
             <h2 class="mb-0">Detalhes do Pedido #{{ pedido.id }}</h2>
         </div>
         <div class="card-body">
-            <h4 class="card-title">Cliente: {{ pedido.cliente.nome }}</h4>
-            <p><strong>Data:</strong> {{ pedido.criado_em|date:"d/m/Y H:i" }}</p>
-            <p><strong>Status:</strong> <span class="badge bg-primary">{{ pedido.get_status_display }}</span></p>
-            <hr>
-            <h5>Itens do Pedido</h5>
-            <ul class="list-group mb-3">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p><strong>Data do Pedido:</strong> {{ pedido.criado_em|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Cliente:</strong> {{ pedido.cliente.nome }}</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p><strong>Status:</strong>
+                        <span class="badge
+                            {% if pedido.status == 'ENVIADO' or pedido.status == 'ENTREGUE' %} bg-success
+                            {% elif pedido.status == 'CANCELADO' %} bg-danger
+                            {% elif pedido.status == 'CANCELAMENTO_SOLICITADO' %} bg-secondary
+                            {% else %} bg-warning text-dark {% endif %}">
+                            {{ pedido.get_status_display }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <h4 class="mt-4">Itens do Pedido</h4>
+            <ul class="list-group list-group-flush">
                 {% for item in pedido.itens.all %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        {{ item.produto.nome }} ({{ item.quantidade }}x)
+                        {{ item.quantidade }}x {{ item.produto.nome }}
                         <span>R$ {{ item.subtotal|floatformat:2 }}</span>
                     </li>
                 {% endfor %}
             </ul>
-            <div class="d-flex justify-content-end fs-4">
+            <div class="d-flex justify-content-end fs-4 mt-3 pt-3 border-top">
                 <strong>Total: R$ {{ pedido.total|floatformat:2 }}</strong>
             </div>
             <hr>
-            <a href="{% url 'pedidos:lista' %}" class="btn btn-secondary">Voltar</a>
-            <a href="{% url 'pedidos:editar' pedido.pk %}" class="btn btn-primary">Editar Pedido</a>
+
+            {# --- AÇÕES DO PEDIDO --- #}
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="{% url 'pedidos:lista' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Voltar para Meus Pedidos
+                </a>
+
+                <div>
+                    {% if pedido.status == 'AGUARDANDO_PAGAMENTO' %}
+                        <a href="{% url 'pedidos:ver_boleto' pedido.id %}" class="btn btn-primary">
+                            <i class="fas fa-barcode me-2"></i> Ver Boleto
+                        </a>
+                        <form action="{% url 'pedidos:solicitar_cancelamento' pedido.id %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Tem certeza que deseja solicitar o cancelamento deste pedido?')">
+                                Cancelar Pedido
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 </div>

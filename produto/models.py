@@ -22,7 +22,7 @@ class Produto(models.Model):
     categoria = models.ForeignKey(
         Categoria,
         on_delete=models.CASCADE,
-        related_name='produtos'  # <-- ALTERAÇÃO 1
+        related_name='produto'
     )
     imagem = CloudinaryField('image', blank=True, null=True)
 
@@ -32,7 +32,7 @@ class Produto(models.Model):
 
     class Meta:
         verbose_name = "produto"
-        verbose_name_plural = "produtos"  # <-- ALTERAÇÃO 2
+        verbose_name_plural = "produto"
 
     def __str__(self):
         return self.nome

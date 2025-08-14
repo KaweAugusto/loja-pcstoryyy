@@ -1,43 +1,90 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}Minha Conta - {{ block.super }}{% endblock %}
+{% block title %}Minha Conta{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="card shadow-sm">
-        <div class="card-header bg-dark text-white">
-            <h2 class="mb-0">Minha Conta</h2>
-        </div>
-        <div class="card-body">
-            <h4 class="card-title mb-4">
-                Bem-vindo(a), {{ user.first_name|default:user.username }}!
-            </h4>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h3 class="mb-0">Minha Conta</h3>
+            </div>
+            <div class="card-body">
 
-            <p class="text-muted">
-                Aqui estão suas informações de cadastro. Mantenha-as sempre atualizadas.
-            </p>
-            <hr>
+                {# --- VISÃO PARA O SUPERUSUÁRIO (ADMIN) --- #}
+                {% if user.is_superuser %}
+                <div class="alert alert-info">
+                    <h4 class="alert-heading">Você está logado como Administrador</h4>
+                    <p>Como administrador, você pode gerenciar todo o site através do painel de controle.</p>
+                </div>
 
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <strong>Nome Completo:</strong>
-                    <span>{{ user.first_name|default:"Não informado" }}</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <strong>Email de Cadastro:</strong>
-                    <span>{{ user.email }}</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <strong>Endereço Principal:</strong>
-                    <span>{{ user.cliente.endereco|default:"Não informado" }}</span>
-                </li>
-            </ul>
+                <h5>Suas Informações de Admin:</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>Usuário:</strong> {{ user.username }}</li>
+                    <li class="list-group-item"><strong>E-mail:</strong> {{ user.email }}</li>
+                </ul>
+                <hr>
+                <div class="d-grid">
+                    <a href="{% url 'admin:index' %}" class="btn btn-primary btn-lg">Acessar Painel de Admin</a>
+                </div>
 
-            <div class="mt-4">
-                <a href="#" class="btn btn-primary">Editar Informações</a>
-                <a href="#" class="btn btn-secondary">Alterar Senha</a>
+                {# --- VISÃO PARA O CLIENTE NORMAL --- #}
+                {% else %}
+                <p>Aqui você pode atualizar suas informações pessoais e de entrega.</p>
+                <hr>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <h5 class="mt-4">Dados de Acesso</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ user_form.first_name.label }}</label>
+                            {{ user_form.first_name }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ user_form.last_name.label }}</label>
+                            {{ user_form.last_name }}
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">{{ user_form.email.label }}</label>
+                            {{ user_form.email }}
+                        </div>
+                    </div>
+
+                    <h5 class="mt-4">Dados de Contato e Entrega</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ cliente_form.telefone.label }}</label>
+                            {{ cliente_form.telefone }}
+                        </div>
+                        <div class="col-md-12 mb-3">
+                             <label class="form-label">{{ cliente_form.endereco.label }}</label>
+                            {{ cliente_form.endereco }}
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Salvar Alterações</button>
+                    </div>
+                </form>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Adiciona a classe 'form-control' a todos os inputs do formulário para estilização com Bootstrap
+    document.addEventListener('DOMContentLoaded', function() {
+        const formInputs = document.querySelectorAll('form input, form textarea');
+        formInputs.forEach(input => {
+            if (input.type !== 'checkbox') {
+                input.classList.add('form-control');
+            }
+        });
+    });
+</script>
 {% endblock %}

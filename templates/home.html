@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Home - Mini E-commerce{% endblock %}
+{% block title %}Home - PC-Store E-commerce{% endblock %}
 
 {% block content %}
 <style>
     /* Estilos específicos para a página inicial */
     .hero-section {
-        background-color: #2c2c2c;
+        background-color: #343a40; /* bg-dark */
         border-radius: 8px;
         padding: 4rem 2rem;
         color: white;
-        text-align: left;
+        text-align: center; /* Alterado para centralizar */
     }
 
     .hero-text h1 {
@@ -30,27 +30,15 @@
         text-decoration: none;
         display: inline-block;
     }
-
-    .hero-image {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .card-img-top {
-        object-fit: contain;
-        height: 200px;
-    }
 </style>
 
 <div class="container mt-4">
     <div class="hero-section mb-5">
-        <div class="row align-items-center">
-            <div class="col-md-7 hero-text">
+        <div class="row justify-content-center">
+            {# A div da imagem foi removida e esta ajustada para ocupar o espaço todo #}
+            <div class="col-md-10 hero-text">
                 <h1>SEU NOVO<br>COMPUTADOR<br>ESTÁ AQUI</h1>
                 <a href="{% url 'produto:lista' %}" class="discount-badge">VER OFERTAS</a>
-            </div>
-            <div class="col-md-5 hero-image d-none d-md-flex">
-                <img src="{% static 'images/computers.png' %}" alt="Computador e Notebook" class="img-fluid">
             </div>
         </div>
     </div>
@@ -61,7 +49,7 @@
         <div class="col-md-6 col-lg-3 mb-4">
             <div class="card h-100 shadow-sm">
                 {% if produto.imagem and produto.imagem.url %}
-                    <img src="{{ produto.imagem.url }}" class="card-img-top p-3" alt="{{ produto.nome }}">
+                    <img src="{{ produto.imagem.url }}" class="card-img-top p-3" alt="{{ produto.nome }}" style="object-fit: contain; height: 200px;">
                 {% else %}
                     <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
                         <span class="text-muted">Sem imagem</span>

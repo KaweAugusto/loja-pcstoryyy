@@ -1,10 +1,41 @@
 services:
+  #-----------------------------
+  # 1. Web Service (Your Django App)
+  #-----------------------------
   - type: web
     name: sistema-ecommerce
     env: python
-    plan: free
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn sistema_ecommerce.wsgi"
+    plan: free # Mude para um plano pago para melhor performance
+    region: oregon # Escolha a região mais próxima de você
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --no-input
+      python manage.py migrate
+    startCommand: "gunicorn sistema_ecommerce.wsgi --workers 4"
     envVars:
-      - key: DJANGO_SETTINGS_MODULE
-        value: sistema_ecommerce.settings
+      - key: SECRET_KEY
+        generateValue: true # Render irá gerar uma chave segura automaticamente
+      - key: DEBUG
+        value: False # MUITO IMPORTANTE para produção
+      - key: DATABASE_URL
+        fromService:
+          type: psql
+          name: ecommerce-db # Nome do serviço de banco de dados (abaixo)
+          property: connectionString
+      - key: CLOUDINARY_URL
+        sync: false # Cole seu valor diretamente no dashboard do Render
+      - key: EMAIL_HOST_USER
+        sync: false # Cole seu e-mail no dashboard do Render
+      - key: EMAIL_HOST_PASSWORD
+        sync: false # Cole sua senha de e-mail no dashboard do Render
+
+  #-----------------------------
+  # 2. PostgreSQL Database
+  #-----------------------------
+  - type: psql
+    name: ecommerce-db
+    plan: free # Mude para um plano pago para melhor performance
+    region: oregon
+    ipAllowList: [] # Permite acesso de qualquer IP (necessário para o web service)
+    databaseName: ecommerce_db
+    user: seu_usuario_db # Escolha um nome de usuário para o banco

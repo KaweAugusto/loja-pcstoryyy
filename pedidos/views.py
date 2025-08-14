@@ -1,15 +1,17 @@
-# pedidos/views.py
-
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
-from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView, DetailView
+from django.db import transaction
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
+from django.conf import settings
+from datetime import date, timedelta
 
-from .models import Pedido
-from .forms import PedidoForm, ItemPedidoFormSet
+from .models import Pedido, ItemPedido
+from carrinho.models import Carrinho
+from clientes.models import Cliente
 
 
 class PedidoListView(LoginRequiredMixin, ListView):
@@ -19,11 +21,10 @@ class PedidoListView(LoginRequiredMixin, ListView):
     ordering = ['-criado_em']
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        if self.request.user.is_superuser:
-            return queryset
-        else:
-            return queryset.filter(cliente__user=self.request.user)
+        user = self.request.user
+        if user.is_staff:
+            return Pedido.objects.all()
+        return Pedido.objects.filter(cliente__user=user)
 
 
 class PedidoDetailView(LoginRequiredMixin, DetailView):
@@ -31,109 +32,112 @@ class PedidoDetailView(LoginRequiredMixin, DetailView):
     template_name = 'pedidos/order_detail.html'
     context_object_name = 'pedido'
 
-
-class PedidoCreateView(LoginRequiredMixin, CreateView):
-    model = Pedido
-    form_class = PedidoForm
-    template_name = 'pedidos/order_form.html'
-    success_url = reverse_lazy('pedidos:lista')
-
-    def get_context_data(self, **kwargs):
-        data = super().get_context_data(**kwargs)
-        if self.request.POST:
-            data['formset'] = ItemPedidoFormSet(self.request.POST)
-        else:
-            data['formset'] = ItemPedidoFormSet()
-        return data
-
-    def form_valid(self, form):
-        context = self.get_context_data()
-        formset = context['formset']
-        if formset.is_valid():
-            # Assumindo que a relação user -> cliente existe
-            form.instance.cliente = self.request.user.cliente
-            self.object = form.save()
-            formset.instance = self.object
-            formset.save()
-            return redirect(self.get_success_url())
-        else:
-            return self.render_to_response(self.get_context_data(form=form))
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Pedido.objects.all()
+        return Pedido.objects.filter(cliente__user=user)
 
 
-class PedidoUpdateView(LoginRequiredMixin, UpdateView):
-    model = Pedido
-    form_class = PedidoForm
-    template_name = 'pedidos/order_form.html'
-    success_url = reverse_lazy('pedidos:lista')
+@login_required
+def finalizar_pedido(request):
+    try:
+        carrinho = request.user.carrinho
+        if not carrinho.itens.all().exists():
+            messages.warning(request, "Seu carrinho está vazio.")
+            return redirect('carrinho:detalhe')
+    except Carrinho.DoesNotExist:
+        messages.error(request, "Ocorreu um erro ao encontrar seu carrinho.")
+        return redirect('home')
 
-    def get_context_data(self, **kwargs):
-        data = super().get_context_data(**kwargs)
-        if self.request.POST:
-            data['formset'] = ItemPedidoFormSet(self.request.POST, instance=self.object)
-        else:
-            data['formset'] = ItemPedidoFormSet(instance=self.object)
-        return data
+    if request.method == 'POST':
+        cliente, created = Cliente.objects.get_or_create(
+            user=request.user,
+            defaults={'nome': request.user.get_full_name() or request.user.username}
+        )
 
-    def form_valid(self, form):
-        context = self.get_context_data()
-        formset = context['formset']
-        if formset.is_valid():
-            self.object = form.save()
-            formset.instance = self.object
-            formset.save()
-            return redirect(self.get_success_url())
-        else:
-            return self.render_to_response(self.get_context_data(form=form))
+        with transaction.atomic():
+            novo_pedido = Pedido.objects.create(
+                cliente=cliente,
+                total=carrinho.total,
+                status='AGUARDANDO_PAGAMENTO'
+            )
 
-# -----------------------------------------------------------------------------
-# VIEWS DE CANCELAMENTO DE PEDIDO (ADICIONADAS)
-# -----------------------------------------------------------------------------
+            for item_carrinho in carrinho.itens.all():
+                ItemPedido.objects.create(
+                    pedido=novo_pedido,
+                    produto=item_carrinho.produto,
+                    quantidade=item_carrinho.quantidade,
+                    preco=item_carrinho.produto.preco
+                )
 
+            carrinho.itens.all().delete()
+
+            assunto = f"Confirmação do seu Pedido #{novo_pedido.id} na PC-Store"
+            corpo_html = render_to_string('pedidos/email_confirmacao_pedido.html',
+                                          {'pedido': novo_pedido, 'user': request.user, 'request': request})
+            send_mail(
+                assunto, '',
+                settings.DEFAULT_FROM_EMAIL,
+                [request.user.email],
+                html_message=corpo_html
+            )
+
+            return redirect('pedidos:sucesso', pedido_id=novo_pedido.id)
+
+    return render(request, 'pedidos/finalizar_pedido.html', {'carrinho': carrinho})
+
+
+@login_required
+def pedido_sucesso(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id, cliente__user=request.user)
+    return render(request, 'pedidos/pedido_sucesso.html', {'pedido': pedido})
+
+
+@login_required
+def ver_boleto(request, pedido_id):
+    user = request.user
+    if user.is_staff:
+        pedido = get_object_or_404(Pedido, id=pedido_id)
+    else:
+        pedido = get_object_or_404(Pedido, id=pedido_id, cliente__user=user)
+
+    data_vencimento = pedido.criado_em.date() + timedelta(days=5)
+
+    context = {
+        'pedido': pedido,
+        'data_vencimento': data_vencimento
+    }
+    return render(request, 'pedidos/boleto.html', context)
+
+
+# --- AQUI ESTÁ A CORREÇÃO ---
 @login_required
 def solicitar_cancelamento(request, pedido_id):
-    pedido = get_object_or_404(Pedido, id=pedido_id)
-    # Garante que apenas o dono do pedido pode solicitar o cancelamento
-    if pedido.cliente.user == request.user:
-        pedido.status_cancelamento = 'solicitado'
-        pedido.save()
-        messages.success(request, 'Sua solicitação de cancelamento foi enviada e será analisada.')
+    user = request.user
+
+    # Se o usuário for admin, busca o pedido apenas pelo ID
+    if user.is_staff:
+        pedido = get_object_or_404(Pedido, id=pedido_id)
+        # Admin pode cancelar diretamente
+        if request.method == 'POST':
+            pedido.status = 'CANCELADO'
+            pedido.save()
+            messages.success(request, f"O Pedido #{pedido.id} foi cancelado pelo administrador.")
+        else:
+            messages.error(request, "Método inválido.")
+
+    # Se for um cliente normal, busca pelo ID E garante que o pedido é dele
     else:
-        messages.error(request, 'Você não tem permissão para realizar esta ação.')
-    return redirect('pedidos:detalhar', pk=pedido.id)
+        pedido = get_object_or_404(Pedido, id=pedido_id, cliente__user=user)
+        if pedido.status == 'AGUARDANDO_PAGAMENTO':
+            if request.method == 'POST':
+                pedido.status = 'CANCELAMENTO_SOLICITADO'
+                pedido.save()
+                messages.success(request, f"Sua solicitação para cancelar o Pedido #{pedido.id} foi enviada.")
+            else:
+                messages.error(request, "Método inválido.")
+        else:
+            messages.error(request, f"Não é mais possível solicitar o cancelamento para o Pedido #{pedido.id}.")
 
-
-@login_required
-def status_cancelamento(request, pedido_id):
-    pedido = get_object_or_404(Pedido, id=pedido_id)
-    # Página para o admin ver e decidir sobre o cancelamento
-    if not request.user.is_superuser:
-        messages.error(request, 'Acesso negado.')
-        return redirect('pedidos:lista')
-    return render(request, 'pedidos/status_cancelamento.html', {'pedido': pedido})
-
-
-@login_required
-def confirmar_cancelamento(request, pedido_id):
-    # Ação que o admin toma para confirmar
-    if not request.user.is_superuser:
-        messages.error(request, 'Acesso negado.')
-        return redirect('pedidos:lista')
-    pedido = get_object_or_404(Pedido, id=pedido_id)
-    pedido.status_cancelamento = 'cancelado'
-    pedido.status = 'CANCELADO' # Muda o status principal do pedido também
-    pedido.save()
-    messages.success(request, f'O pedido #{pedido.id} foi cancelado com sucesso.')
-    return redirect('pedidos:lista')
-
-
-@login_required
-def negar_cancelamento(request, pedido_id):
-    # Ação que o admin toma para negar
-    if not request.user.is_superuser:
-        messages.error(request, 'Acesso negado.')
-        return redirect('pedidos:lista')
-    pedido = get_object_or_404(Pedido, id=pedido_id)
-    pedido.status_cancelamento = 'recusado'
-    pedido.save()
-    messages.warning(request, f'A solicitação de cancelamento para o pedido #{pedido.id} foi negada.')
     return redirect('pedidos:lista')

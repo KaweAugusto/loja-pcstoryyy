@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ produto.nome }}{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm mb-4">
+    <div class="row g-0">
+        <div class="col-md-5 d-flex align-items-center justify-content-center p-3">
+            {% if produto.imagem and produto.imagem.url %}
+                <img src="{{ produto.imagem.url }}" class="img-fluid rounded" alt="{{ produto.nome }}" style="max-height: 400px; object-fit: contain;">
+            {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center h-100 w-100 rounded">
+                    <span class="text-muted">Sem imagem disponível</span>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-7">
+            <div class="card-body p-4">
+                <h1 class="card-title">{{ produto.nome }}</h1>
+                <p class="card-text"><small class="text-muted">{{ produto.categoria.nome }}</small></p>
+                <p class="card-text mt-3">{{ produto.descricao|linebreaks }}</p>
+
+                <h3 class="card-price my-4">R$ {{ produto.preco|floatformat:2 }}</h3>
+
+                {% if produto.estoque > 0 and produto.disponivel %}
+                    <p class="text-success"><i class="fas fa-check-circle me-1"></i> Em estoque ({{ produto.estoque }} disponíveis)</p>
+
+                    {# --- BOTÃO ADICIONAR AO CARRINHO --- #}
+                    <form action="{% url 'carrinho:adicionar' produto.id %}" method="post" class="mt-3">
+                        {% csrf_token %}
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-cart-plus me-2"></i> Adicionar ao Carrinho
+                            </button>
+                        </div>
+                    </form>
+
+                {% else %}
+                    <div class="alert alert-danger mt-3">
+                        <i class="fas fa-times-circle me-1"></i> Produto indisponível no momento.
+                    </div>
+                {% endif %}
+
+                <a href="{% url 'produto:lista' %}" class="btn btn-link mt-3 ps-0">
+                    <i class="fas fa-arrow-left me-1"></i> Voltar para a lista de produtos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

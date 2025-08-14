@@ -28,7 +28,7 @@ for nome_cat in categorias_para_criar:
     Categoria.objects.get_or_create(nome=nome_cat)
 print(f'✅ Categorias garantidas no banco: {Categoria.objects.count()}')
 
-# 3. Define os produtos, associando-os pelo nome da categoria
+# 3. Define os produto, associando-os pelo nome da categoria
 produtos = [
     ('ASUS TUF Gaming B550M-PLUS', 'Placa-mãe AM4 micro-ATX', 'Placas-mãe', 849.90, 10),
     ('MSI MAG B460 Tomahawk', 'Placa-mãe LGA1200 ATX', 'Placas-mãe', 999.90, 8),
@@ -40,7 +40,7 @@ produtos = [
     ('Seagate Barracuda 1TB', 'HD 7200RPM 3.5"', 'Outros', 219.90, 30),
 ]
 
-# 4. Cria os produtos se eles não existirem
+# 4. Cria os produto se eles não existirem
 for nome, desc, cat_nome, preco, estoque in produtos:
     # Busca o objeto Categoria pelo nome
     categoria_obj = Categoria.objects.get(nome=cat_nome)

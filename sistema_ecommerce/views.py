@@ -1,4 +1,3 @@
-# sistema_ecommerce/views.py
 from django.views.generic import ListView
 from produto.models import Produto
 
