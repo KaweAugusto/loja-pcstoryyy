@@ -1,5 +1,6 @@
-Django>=4.2
-python-dotenv
-gunicorn
-cloudinary
-django-cloudinary-storage
+Django==5.2.5
+gunicorn==23.0.0
+python-dotenv==1.1.1
+cloudinary==1.44.1
+django-cloudinary-storage==0.3.0
+whitenoise==6.9.0
