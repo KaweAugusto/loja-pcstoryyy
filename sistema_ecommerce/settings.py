@@ -2,16 +2,18 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Carrega as variáveis de ambiente do arquivo .env
+# --- CARREGA VARIÁVEIS DE AMBIENTE ---
 load_dotenv()
 
-# Configurações básicas do projeto
+# --- CONFIGURAÇÕES BÁSICAS ---
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-insegura')
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost 127.0.0.1').split()
+SECRET_KEY = os.getenv('SECRET_KEY')
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = [host.strip() for host in os.getenv(
+    'ALLOWED_HOSTS', 'mini-ecommerce-loja.onrender.com,localhost,127.0.0.1'
+).split(',')]
 
-# Aplicações instaladas
+# --- APLICATIVOS INSTALADOS ---
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -19,14 +21,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Seus apps
     'produto',
     'clientes',
     'pedidos',
     'carrinho',
+
+    # Cloudinary
     'cloudinary',
-    'cloudinary_storage',
+    'django_cloudinary_storage',  # CORRETO
 ]
 
+# --- MIDDLEWARE ---
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -37,9 +44,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# --- URLS E WSGI ---
 ROOT_URLCONF = 'sistema_ecommerce.urls'
 WSGI_APPLICATION = 'sistema_ecommerce.wsgi.application'
 
+# --- TEMPLATES ---
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -57,6 +66,7 @@ TEMPLATES = [
     },
 ]
 
+# --- BANCO DE DADOS ---
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -64,6 +74,7 @@ DATABASES = {
     }
 }
 
+# --- VALIDADORES DE SENHA ---
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -71,39 +82,35 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Configurações de Internacionalização
+# --- INTERNACIONALIZAÇÃO ---
 LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
 
-# Configurações de Arquivos Estáticos
+# --- ARQUIVOS ESTÁTICOS ---
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Configurações de Arquivos de Mídia
+# --- ARQUIVOS DE MÍDIA ---
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# --- ARMAZENAMENTO NO CLOUDINARY ---
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
+DEFAULT_FILE_STORAGE = 'django_cloudinary_storage.storage.MediaCloudinaryStorage'  # CORRETO
 
-# Configurações de Login
+# --- CONFIGURAÇÕES DE LOGIN ---
 LOGIN_URL = '/clientes/login-registro/'
 LOGIN_REDIRECT_URL = '/clientes/minha-conta/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Configurações do Cloudinary para armazenamento de imagens
-CLOUDINARY_URL = os.getenv('CLOUDINARY_URL')
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUD_NAME'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
-}
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-
-# --- CONFIGURAÇÃO DE E-MAIL (HOTMAIL/OUTLOOK) ---
+# --- CONFIGURAÇÕES DE E-MAIL (Microsoft 365) ---
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.office365.com'
 EMAIL_PORT = 587
@@ -111,3 +118,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# --- CAMPO PADRÃO DE AUTO FIELD ---
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

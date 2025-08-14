@@ -1,26 +1,43 @@
-# Arquivos de Cache do Python
+# Arquivos e pastas do Python
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
 *.pyd
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
 
-# Banco de Dados
-db.sqlite3
-*.sql
-*.zip
-
-# Ambiente Virtual
-venv/
+# Ambiente virtual
 .env
+.venv/
+env/
+venv/
+ENV/
 
-# Arquivos de IDEs e Editores
-.idea/
-.vscode/
+# Configurações e chaves
+*.sqlite3
+db.sqlite3
+.env.*
+*.env
+*.secret
 
-# Arquivos de sistema operacional
+# Arquivos de log
+*.log
+
+# Arquivos estáticos e mídia (serão gerados no servidor)
+staticfiles/
+static/
+media/
+
+# Configuração do sistema operacional
 .DS_Store
 Thumbs.db
 
-# Arquivos de build e logs
-/staticfiles/
-*.log
+# Configuração do editor
+.vscode/
+.idea/
+
+# Arquivos específicos do Render
+render.yaml
