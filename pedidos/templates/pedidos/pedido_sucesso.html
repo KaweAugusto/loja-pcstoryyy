@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Pedido Realizado com Sucesso{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <i class="fas fa-check-circle fa-5x text-success mb-4"></i>
+    <h1 class="display-4">Obrigado pela sua compra!</h1>
+    <p class="lead">Seu pedido #{{ pedido.id }} foi realizado com sucesso.</p>
+    <hr>
+    <p>Um e-mail de confirmação foi enviado para <strong>{{ request.user.email }}</strong> com todos os detalhes e as instruções para o pagamento do boleto.</p>
+
+    <div class="mt-4">
+        <a href="{% url 'pedidos:ver_boleto' pedido.id %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-barcode me-2"></i> Ver Boleto
+        </a>
+        <a href="{% url 'produto:lista' %}" class="btn btn-secondary btn-lg">Continuar Comprando</a>
+    </div>
+</div>
+{% endblock %}

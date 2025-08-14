@@ -1,0 +1,20 @@
+sistema_entrega [e-commerce]  C:\Users\kawe3\PycharmProjects\PythonProject\sistema_entrega
+  carrinho
+  clientes
+  media
+  pedidos
+  produto
+  sistema_ecommerce
+  static
+  templates
+  venv
+  .env
+  db.sqlite3
+  manage.py
+  popular_produtos.py
+  Procfile
+  README.md
+  render.yaml
+  requirements.txt
+Bibliotecas Externas
+Scratchs e Consoles

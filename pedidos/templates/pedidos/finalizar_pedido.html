@@ -1,0 +1,68 @@
+={% extends 'base.html' %}
+
+{% block title %}Finalizar Pedido{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Finalizar Pedido</h2>
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">1. Endereço de Entrega</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Nome:</strong> {{ request.user.cliente.nome }}</p>
+                    <p><strong>Endereço:</strong> {{ request.user.cliente.endereco }}</p>
+                    <p><strong>Telefone:</strong> {{ request.user.cliente.telefone }}</p>
+                    <a href="{% url 'clientes:minha_conta' %}" class="btn btn-sm btn-outline-secondary">Editar Endereço</a>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">2. Forma de Pagamento</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="forma_pagamento" id="boleto" value="boleto" checked disabled>
+                        <label class="form-check-label" for="boleto">
+                            <strong>Boleto Bancário</strong>
+                            <small class="d-block text-muted">O boleto será gerado e enviado para seu e-mail após a confirmação do pedido.</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm sticky-top" style="top: 80px;">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">Resumo do Pedido</h4>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for item in carrinho.itens.all %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>{{ item.quantidade }}x {{ item.produto.nome }}</span>
+                            <span>R$ {{ item.subtotal|floatformat:2 }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h5>Total a pagar</h5>
+                        <h5 class="fw-bold">R$ {{ carrinho.total|floatformat:2 }}</h5>
+                    </div>
+                    <hr>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg">Confirmar e Finalizar Pedido</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

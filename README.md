@@ -54,8 +54,8 @@ Siga os passos abaixo para configurar e rodar o projeto no seu ambiente de desen
 
 ```bash
 # Clone o repositório (se estiver no GitHub)
-git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
-cd seu-repositorio
+git clone [https://github.com/KaweAugusto/projeto-ecommerc.git](https://github.com/KaweAugusto/projeto-ecommerc.git)
+cd projeto-ecommerc
 
 # Crie e ative um ambiente virtual
 python -m venv venv

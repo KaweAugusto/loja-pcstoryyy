@@ -1,0 +1,26 @@
+# Arquivos de Cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Banco de Dados
+db.sqlite3
+*.sql
+*.zip
+
+# Ambiente Virtual
+venv/
+.env
+
+# Arquivos de IDEs e Editores
+.idea/
+.vscode/
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos de build e logs
+/staticfiles/
+*.log

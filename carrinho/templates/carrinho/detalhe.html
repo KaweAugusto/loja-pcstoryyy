@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Meu Carrinho{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Meu Carrinho de Compras</h2>
+
+    {% if carrinho.itens.all %}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    {% for item in carrinho.itens.all %}
+                    <div class="row mb-4 align-items-center">
+                        <div class="col-md-2">
+                            {% if item.produto.imagem %}
+                                <img src="{{ item.produto.imagem.url }}" alt="{{ item.produto.nome }}" class="img-fluid rounded">
+                            {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 80px; width: 80px;">
+                                    <span class="text-muted small">Sem imagem</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <h5 class="mb-0">{{ item.produto.nome }}</h5>
+                            <small class="text-muted">Preço unitário: R$ {{ item.produto.preco|floatformat:2 }}</small>
+                        </div>
+                        <div class="col-md-2">
+                            <p class="mb-0">Qtd: {{ item.quantidade }}</p>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <h6 class="mb-0">R$ {{ item.subtotal|floatformat:2 }}</h6>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <a href="{% url 'carrinho:remover' item.id %}" class="btn btn-sm btn-outline-danger" title="Remover item">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% if not forloop.last %}<hr>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top" style="top: 80px;">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">Resumo do Pedido</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h5>Total</h5>
+                        <h5 class="fw-bold">R$ {{ carrinho.total|floatformat:2 }}</h5>
+                    </div>
+                    <hr>
+                    <div class="d-grid">
+                        <a href="{% url 'pedidos:finalizar' %}" class="btn btn-success btn-lg">Finalizar Compra</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+        <h3>Seu carrinho está vazio.</h3>
+        <p>Adicione produtos para vê-los aqui.</p>
+        <a href="{% url 'produto:lista' %}" class="btn btn-primary mt-3">Ver Produtos</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Boleto - Pedido #{{ pedido.id }}{% endblock %}
+
+{% block content %}
+<style>
+    .boleto { border: 1px solid #000; padding: 10px; font-family: 'Courier New', Courier, monospace; background-color: #fff; }
+    .boleto-header { display: flex; align-items: center; border-bottom: 2px solid #000; padding-bottom: 5px; }
+    .boleto-header .logo { font-size: 24px; font-weight: bold; border-right: 2px solid #000; padding-right: 15px; }
+    .boleto-header .banco-code { font-size: 24px; font-weight: bold; padding-left: 15px; }
+    .boleto-field { border-bottom: 1px solid #ccc; padding: 8px 5px; font-size: 12px; }
+    .boleto-field label { display: block; font-size: 10px; color: #555; }
+    .boleto-value { font-weight: bold; }
+    .linha-digitavel { text-align: center; font-size: 16px; font-weight: bold; letter-spacing: 2px; padding: 10px; border-bottom: 2px solid #000; }
+    .barcode { text-align: center; padding: 20px; }
+</style>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Boleto Bancário (Simulação)</h3>
+        <button onclick="window.print()" class="btn btn-primary"><i class="fas fa-print me-2"></i> Imprimir Boleto</button>
+    </div>
+
+    <div class="boleto">
+        <div class="boleto-header">
+            <div class="logo">Banco Fictício S.A.</div>
+            <div class="banco-code">341-7</div>
+            <div class="linha-digitavel ms-auto">23793.38128 60073.920000 8 60323.229107 5 94410000189000</div>
+        </div>
+
+        <div class="row">
+            <div class="col-8 boleto-field">
+                <label>Local de Pagamento</label>
+                <div class="boleto-value">PAGÁVEL EM QUALQUER BANCO ATÉ O VENCIMENTO</div>
+            </div>
+            <div class="col-4 boleto-field" style="border-left: 1px solid #ccc;">
+                <label>Vencimento</label>
+                <div class="boleto-value text-end">{{ data_vencimento|date:"d/m/Y" }}</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-8 boleto-field">
+                <label>Cedente</label>
+                <div class="boleto-value">PC-Store E-commerce</div>
+            </div>
+            <div class="col-4 boleto-field" style="border-left: 1px solid #ccc;">
+                <label>Agência/Código Cedente</label>
+                <div class="boleto-value text-end">1234-5 / 67890-1</div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-3 boleto-field"><label>Data Documento</label>{{ pedido.criado_em|date:"d/m/Y" }}</div>
+            <div class="col-3 boleto-field"><label>Nº Documento</label>{{ pedido.id }}</div>
+            <div class="col-3 boleto-field"><label>Espécie doc.</label>DM</div>
+            <div class="col-3 boleto-field"><label>Aceite</label>N</div>
+        </div>
+
+        <div class="row">
+             <div class="col-8 boleto-field">
+                <label>Sacado</label>
+                <div class="boleto-value">{{ pedido.cliente.nome }}</div>
+                <div>{{ pedido.cliente.endereco }}</div>
+            </div>
+            <div class="col-4 boleto-field" style="border-left: 1px solid #ccc;">
+                <label>(=) Valor do Documento</label>
+                <div class="boleto-value text-end">R$ {{ pedido.total|floatformat:2 }}</div>
+            </div>
+        </div>
+
+        <div class="barcode">
+            <img src="https://barcode.tec-it.com/barcode.ashx?data=23795944100001890003381260073920000860323229&code=I2of5" alt="Código de Barras" width="100%">
+        </div>
+    </div>
+</div>
+{% endblock %}
