@@ -53,8 +53,8 @@ Siga os passos abaixo para configurar e rodar o projeto no seu ambiente de desen
 ### **1. Clone e Prepare o Ambiente**
 
 ```bash
-# Clone o repositório (se estiver no GitHub)
-git clone [https://github.com/KaweAugusto/projeto-ecommerc.git](https://github.com/KaweAugusto/projeto-ecommerc.git)
+# Repositório 
+git clone [https://github.com/KaweAugusto/loja-pcstoryyy.git](https://loja-pcstoryyy.onrender.com/t)
 cd projeto-ecommerc
 
 # Crie e ative um ambiente virtual
@@ -76,21 +76,9 @@ Crie um arquivo chamado `.env` na raiz do projeto (na mesma pasta do `manage.py`
 
 ```dotenv
 # .env
-SECRET_KEY=sua-chave-secreta-super-segura
+SECRET_KEY=chave-secreta
 DEBUG=True
 ALLOWED_HOSTS=127.0.0.1 localhost
-
-# Suas credenciais do Cloudinary
-CLOUDINARY_URL=cloudinary://651964957447285:3ngCF8PacAPMsT4QImAitKcIOg0@dawk8v2pb
-CLOUD_NAME=dawk8v2pb
-CLOUDINARY_API_KEY=651964957447285
-CLOUDINARY_API_SECRET=3ngCF8PacAPMsT4QImAitKcIOg0
-
-
-# Suas credenciais de e-mail para envio de confirmação
-EMAIL_HOST_USER=KaweAugusto@Ecommerc161.onmicrosoft.com
-EMAIL_HOST_PASSWORD=94069794Kk.
-```
 
 ### **4. Prepare o Banco de Dados**
 
@@ -131,14 +119,6 @@ Após rodar o comando `seed_db`, você pode acessar o painel de administração 
 
 ---
 
-## ☁️ Deploy (Exemplo com Render)
+## ☁️ Deploy
 
-Este projeto está pronto para deploy. Para publicar no [Render](https://render.com/):
-
-1.  Envie seu projeto para um repositório no GitHub.
-2.  No Render, crie um novo "Web Service" e aponte para o seu repositório.
-3.  **Configurações do Serviço:**
-    * **Build Command:** `pip install -r requirements.txt`
-    * **Start Command:** `gunicorn sistema_ecommerce.wsgi`
-4.  **Variáveis de Ambiente:** Adicione as mesmas variáveis do seu arquivo `.env` nas configurações do Render, mas com `DEBUG=False`.
-5.  O Render fará o deploy automaticamente.
+Este projeto está pronto para deploy. Para publicar no [Render](https://loja-pcstoryyy.onrender.com/):
