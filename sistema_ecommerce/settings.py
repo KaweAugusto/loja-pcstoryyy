@@ -5,12 +5,15 @@ from dotenv import load_dotenv
 # --- CARREGA VARIÁVEIS DE AMBIENTE ---
 load_dotenv()
 
+# --- CONFIGURAÇÕES BÁSICAS ---
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS').split(',')]
+ALLOWED_HOSTS = [host.strip() for host in os.getenv(
+    'ALLOWED_HOSTS', 'loja-pcstory.onrender.com,localhost,127.0.0.1' # <--- ATUALIZADO
+).split(',')]
 
-# --- INSTALLED APPS ---
+# --- APLICATIVOS INSTALADOS ---
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -19,7 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Apps
+    # Seus apps
     'produto',
     'clientes',
     'pedidos',
@@ -27,7 +30,7 @@ INSTALLED_APPS = [
 
     # Cloudinary
     'cloudinary',
-    'django_cloudinary_storage',
+    'cloudinary_storage', # <--- CORRIGIDO
 ]
 
 # --- MIDDLEWARE ---
@@ -41,6 +44,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# --- URLS E WSGI ---
 ROOT_URLCONF = 'sistema_ecommerce.urls'
 WSGI_APPLICATION = 'sistema_ecommerce.wsgi.application'
 
@@ -62,7 +66,7 @@ TEMPLATES = [
     },
 ]
 
-# --- DATABASE ---
+# --- BANCO DE DADOS ---
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -70,7 +74,7 @@ DATABASES = {
     }
 }
 
-# --- PASSWORD VALIDATORS ---
+# --- VALIDADORES DE SENHA ---
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -78,33 +82,35 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# --- INTERNATIONALIZATION ---
+# --- INTERNACIONALIZAÇÃO ---
 LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
 
-# --- STATIC FILES ---
+# --- ARQUIVOS ESTÁTICOS ---
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# --- MEDIA FILES (Cloudinary) ---
+# --- ARQUIVOS DE MÍDIA ---
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# --- ARMAZENAMENTO NO CLOUDINARY ---
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
-DEFAULT_FILE_STORAGE = 'django_cloudinary_storage.storage.MediaCloudinaryStorage'
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage' # <--- CORRIGIDO
 
-# --- LOGIN ---
+# --- CONFIGURAÇÕES DE LOGIN ---
 LOGIN_URL = '/clientes/login-registro/'
 LOGIN_REDIRECT_URL = '/clientes/minha-conta/'
 LOGOUT_REDIRECT_URL = '/'
 
-# --- EMAIL ---
+# --- CONFIGURAÇÕES DE E-MAIL (Microsoft 365) ---
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.office365.com'
 EMAIL_PORT = 587
@@ -113,5 +119,5 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# --- DEFAULT AUTO FIELD ---
+# --- CAMPO PADRÃO DE AUTO FIELD ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
