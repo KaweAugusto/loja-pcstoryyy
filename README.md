@@ -72,8 +72,6 @@ pip install -r requirements.txt
 
 ### **3. Configure as Variáveis de Ambiente**
 
-Crie um arquivo chamado `.env` na raiz do projeto (na mesma pasta do `manage.py`) e adicione as seguintes variáveis. Use o arquivo `.env.example` como base.
-
 ```dotenv
 # .env
 SECRET_KEY=chave-secreta
@@ -121,4 +119,4 @@ Após rodar o comando `seed_db`, você pode acessar o painel de administração 
 
 ## ☁️ Deploy
 
-Este projeto está pronto para deploy. Para publicar no [Render](https://loja-pcstoryyy.onrender.com/):
+Este projeto está pronto para deploy. Publicar no [Render](https://loja-pcstoryyy.onrender.com/):
