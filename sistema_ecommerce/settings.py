@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = [host.strip() for host in os.getenv(
-    'ALLOWED_HOSTS', 'loja-pcstoryyy.onrender.com,localhost,127.0.0.1' # <--- ATUALIZADO
+    'ALLOWED_HOSTS', 'loja-pcstoryyy.onrender.com,localhost,127.0.0.1'
 ).split(',')]
 
 # --- APLICATIVOS INSTALADOS ---
@@ -30,12 +30,13 @@ INSTALLED_APPS = [
 
     # Cloudinary
     'cloudinary',
-    'cloudinary_storage', # <--- CORRIGIDO
+    'cloudinary_storage',
 ]
 
 # --- MIDDLEWARE ---
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # <--- ADICIONADO
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -92,6 +93,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage' # <--- ADICIONADO
 
 # --- ARQUIVOS DE MÍDIA ---
 MEDIA_URL = '/media/'
@@ -103,7 +105,7 @@ CLOUDINARY_STORAGE = {
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage' # <--- CORRIGIDO
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # --- CONFIGURAÇÕES DE LOGIN ---
 LOGIN_URL = '/clientes/login-registro/'
