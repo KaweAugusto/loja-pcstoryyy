@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = [host.strip() for host in os.getenv(
-    'ALLOWED_HOSTS', 'loja-pcstory.onrender.com,localhost,127.0.0.1' # <--- ATUALIZADO
+    'ALLOWED_HOSTS', 'loja-pcstoryy.onrender.com,localhost,127.0.0.1' # <--- ATUALIZADO
 ).split(',')]
 
 # --- APLICATIVOS INSTALADOS ---
