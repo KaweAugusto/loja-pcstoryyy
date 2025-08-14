@@ -11,7 +11,7 @@ services:
       pip install -r requirements.txt
       python manage.py collectstatic --no-input
       python manage.py migrate
-    startCommand: "gunicorn sistema_ecommerce.wsgi --workers 4"
+    startCommand: "gunicorn sistema_ecommerce.wsgi:application --workers 4"
     envVars:
       - key: SECRET_KEY
         generateValue: true # Render irá gerar uma chave segura automaticamente
